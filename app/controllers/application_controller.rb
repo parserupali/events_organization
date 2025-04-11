@@ -1,5 +1,8 @@
 class ApplicationController < ActionController::API
   before_action :authenticate_user!
+  include Pundit
+
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   private
 
@@ -30,5 +33,10 @@ class ApplicationController < ActionController::API
     else
       render json: { error: "Missing token" }, status: :unauthorized
     end
+  end
+
+  # Handle the case when a user is not authorized to perform an action
+  def user_not_authorized(exception)
+    render json: { error: "You are not authorized to perform this action" }, status: :forbidden
   end
 end

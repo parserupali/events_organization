@@ -1,11 +1,18 @@
 Rails.application.routes.draw do
-  
+ 
   namespace :api do
     namespace :v1 do
+      resources :events
+      resources :customers
+      resources :event_organizers
+
       devise_scope :user do
         post   'signin',  to: 'sessions#create'
         delete 'signout', to: 'sessions#destroy'
         post   'signup', to: 'registrations#create'
+
+        post 'event_organizers/signup', to: 'event_organizers#signup'
+        post 'customers/signup', to: 'customers#signup'
       end
     end
   end
