@@ -40,6 +40,7 @@ gem 'devise-jwt'
 gem 'pry'
 gem 'rolify'
 gem 'pundit'
+gem 'active_model_serializers'
 
 
 group :development, :test do

@@ -1,7 +1,7 @@
 module Api
   module V1
     class CustomersController <  ApplicationController
-      skip_before_action :authenticate_user!, only: [:signup]
+      skip_before_action :authenticate_user!, only: [:create]
       before_action :set_customer, only: %i[ show update destroy ]
 
       # GET /customers

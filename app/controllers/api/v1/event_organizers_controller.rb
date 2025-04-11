@@ -1,7 +1,7 @@
 module Api
   module V1
     class EventOrganizersController <  ApplicationController
-      skip_before_action :authenticate_user!, only: [:signup]
+      skip_before_action :authenticate_user!, only: [:create]
       before_action :set_event_organizer, only: %i[ show update destroy ]
 
       # GET /event_organizers
