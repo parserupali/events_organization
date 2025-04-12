@@ -6,7 +6,7 @@ module Api
 
 
       skip_before_action :authenticate_user!, only: [:create]
-      before_action :validate_role, only: [:create]
+      before_action :validate_role, :validate_role_presence, only: [:create]
       respond_to :json
 
       def create
@@ -31,6 +31,12 @@ module Api
 
       def customer_params
         params.require(:customer).permit(:phone_number)
+      end
+
+      def validate_role_presence
+        if params[:user][:role].blank?
+          return render json: { error: "Role is required" }, status: :unprocessable_entity
+        end
       end
 
       def validate_role

@@ -8,32 +8,36 @@ class ApplicationPolicy
     @record = record
   end
 
+  def admin?
+    user&.admin?
+  end
+
   def index?
-    false
+    admin?
   end
 
   def show?
-    false
+    admin?
   end
 
   def create?
-    false
+    admin?
   end
 
   def new?
-    create?
+    admin?
   end
 
   def update?
-    false
+    admin?
   end
 
   def edit?
-    update?
+    admin?
   end
 
   def destroy?
-    false
+    admin?
   end
 
   class Scope
@@ -43,7 +47,11 @@ class ApplicationPolicy
     end
 
     def resolve
-      raise NoMethodError, "You must define #resolve in #{self.class}"
+      if user&.admin?
+        scope.all
+      else
+        scope.none
+      end
     end
 
     private

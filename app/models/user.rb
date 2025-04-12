@@ -10,6 +10,10 @@ class User < ApplicationRecord
 
   rolify
 
+  def admin?
+    has_role?(:admin)
+  end
+
   def customer?
     has_role?(:customer)
   end

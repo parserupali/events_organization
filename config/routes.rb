@@ -1,10 +1,15 @@
 Rails.application.routes.draw do
- 
-  namespace :api do
+   namespace :api do
     namespace :v1 do
-      resources :events
       resources :customers
       resources :event_organizers
+      resources :users, only: [:create, :update, :destroy, :index, :show]
+
+
+      resources :events do
+        resources :tickets, only: [:index], shallow: true
+        resources :bookings, only: [:create] # customers book for this event
+      end
 
       devise_scope :user do
         post   'signin',  to: 'sessions#create'

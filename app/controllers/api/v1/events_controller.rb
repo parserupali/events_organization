@@ -2,32 +2,35 @@ module Api
   module V1
     class EventsController < ApplicationController
       before_action :set_event, only: %i[ show update destroy ]
+      before_action :authorize_event_organizer, only: [:create]
 
-  # GET /events
+      # GET /events
       def index
-        @events = Event.all
-
-        render json: @events
+        events = Event.all
+        authorize events
+        render json: events
       end
 
       # GET /events/1
       def show
+        authorize @event
         render json: @event
       end
 
       # POST /events
       def create
-        @event = Event.new(event_params)
-
-        if @event.save
-          render json: @event, status: :created, location: @event
+        event = current_user.event_organizer.events.new(event_params)
+        authorize event
+        if event.save
+          render json: event, status: :created, location: api_v1_event_url(event)
         else
-          render json: @event.errors, status: :unprocessable_entity
+          render json: event.errors, status: :unprocessable_entity
         end
       end
 
       # PATCH/PUT /events/1
       def update
+        authorize @event
         if @event.update(event_params)
           render json: @event
         else
@@ -37,7 +40,9 @@ module Api
 
       # DELETE /events/1
       def destroy
+        authorize @event
         @event.destroy!
+        render json: { message: 'Event deleted successfully.' }, status: :ok
       end
 
       private
@@ -48,7 +53,11 @@ module Api
 
         # Only allow a list of trusted parameters through.
         def event_params
-          params.require(:event).permit(:title, :description, :event_date, :venue, :event_organizer_id)
+          params.require(:event).permit(:title, :description, :event_date, :venue, :event_organizer_id, tickets_attributes: [:id, :ticket_type, :price, :quantity, :_destroy])
+        end
+
+        def authorize_event_organizer
+          return render json: { error: "Unauthorized" }, status: :unauthorized unless current_user.event_organizer?
         end
     end
   end
