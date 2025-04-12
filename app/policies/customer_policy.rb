@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CustomerPolicy < ApplicationPolicy
   def index?
     admin? || user.event_organizer?
@@ -12,7 +14,6 @@ class CustomerPolicy < ApplicationPolicy
   end
 
   def destroy?
-    admin? || user.event_organizer? || user.customer? && record.customer == user.customer
+    record.bookings.empty? && (admin? || user.event_organizer? || user.customer? && record.customer == user.customer)
   end
 end
-

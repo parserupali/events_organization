@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 module Api
   module V1
-    class SessionsController <  ApplicationController
+    class SessionsController < ApplicationController
       include Devise::Controllers::Helpers
 
       skip_before_action :authenticate_user!, only: [:create]
@@ -9,8 +11,7 @@ module Api
         user = User.find_by(email: params[:user][:email])
 
         if user&.valid_password?(params[:user][:password])
-          token = JWT.encode({ user_id: user.id, exp: 24.hours.from_now.to_i, jti: SecureRandom.uuid }, Rails.application.credentials.devise_jwt_secret_key)
-          render json: { token: token, user: { id: user.id, email: user.email } }, status: :ok
+          render_successful_login(user)
         else
           render json: { error: 'Invalid email or password' }, status: :unauthorized
         end
@@ -19,7 +20,8 @@ module Api
       def destroy
         token = request.headers['Authorization']&.split(' ')&.last
         if token
-          decoded_token = JWT.decode(token,  Rails.application.credentials.devise_jwt_secret_key, true, algorithm: 'HS256')[0]
+          decoded_token = JWT.decode(token, Rails.application.credentials.devise_jwt_secret_key, true,
+                                     algorithm: 'HS256')[0]
           JwtDenylist.create!(jti: decoded_token['jti'], exp: Time.at(decoded_token['exp']))
         end
 
@@ -27,10 +29,20 @@ module Api
       end
 
       private
+
+      def render_successful_login(user)
+        token = generate_token(user)
+        render json: { token: token, user: { id: user.id, email: user.email } }, status: :ok
+      end
+
+      def generate_token(user)
+        JWT.encode({ user_id: user.id, exp: 24.hours.from_now.to_i, jti: SecureRandom.uuid },
+                   Rails.application.credentials.devise_jwt_secret_key)
+      end
+
       def respond_to_on_destroy
         head :no_content
       end
     end
   end
 end
-

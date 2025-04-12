@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class UserPolicy < ApplicationPolicy
   class Scope < Scope
     def resolve
@@ -7,5 +9,5 @@ class UserPolicy < ApplicationPolicy
         scope.none
       end
     end
-  end 
+  end
 end

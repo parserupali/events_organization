@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 module Api
   module V1
-    class RegistrationsController <  ApplicationController
+    class RegistrationsController < ApplicationController
       include Devise::Controllers::Helpers
       VALID_ROLES = %w[customer event_organizer].freeze
-
 
       skip_before_action :authenticate_user!, only: [:create]
       before_action :validate_role, :validate_role_presence, only: [:create]
@@ -21,6 +22,7 @@ module Api
       end
 
       private
+
       def sign_up_params
         params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation)
       end
@@ -34,17 +36,17 @@ module Api
       end
 
       def validate_role_presence
-        if params[:user][:role].blank?
-          return render json: { error: "Role is required" }, status: :unprocessable_entity
-        end
+        return unless params[:user][:role].blank?
+
+        render json: { error: 'Role is required' }, status: :unprocessable_entity
       end
 
       def validate_role
         @role = params[:user][:role].presence || 'customer'
 
-        unless VALID_ROLES.include?(@role)
-          return render json: { error: "Invalid role: #{@role}" }, status: :unprocessable_entity
-        end
+        return if VALID_ROLES.include?(@role)
+
+        render json: { error: "Invalid role: #{@role}" }, status: :unprocessable_entity
       end
 
       def create_role_wise_user(user)
@@ -58,5 +60,5 @@ module Api
         end
       end
     end
-  end 
+  end
 end

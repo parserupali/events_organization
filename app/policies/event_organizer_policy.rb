@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class EventOrganizerPolicy < ApplicationPolicy
   def index?
     admin? || user.event_organizer?
@@ -15,4 +17,3 @@ class EventOrganizerPolicy < ApplicationPolicy
     record.events.empty? && (admin? || user.event_organizer? && record == user.event_organizer)
   end
 end
-

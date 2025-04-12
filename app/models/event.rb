@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Event < ApplicationRecord
   belongs_to :event_organizer
   has_many :bookings, dependent: :destroy

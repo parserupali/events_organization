@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 class EventSerializer < ActiveModel::Serializer
-  attributes :id, :title, :description, :event_date, :venue, :event_organizer_id, :event_organizer_name, :tickets, :created_at, :updated_at
+  attributes :id, :title, :description, :event_date, :venue, :event_organizer_id, :event_organizer_name, :tickets,
+             :created_at, :updated_at
 
   def event_organizer_name
     object.event_organizer.user.full_name

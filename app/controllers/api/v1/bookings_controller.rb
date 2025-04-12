@@ -1,55 +1,52 @@
+# frozen_string_literal: true
+
 module Api
   module V1
     class BookingsController < ApplicationController
-      before_action :set_booking, only: %i[ show update destroy ]
+      before_action :set_booking, only: %i[show]
+      before_action :set_event, only: %i[create]
 
-      # GET /bookings
+      # GET /events/:event_id/bookings
       def index
         @bookings = Booking.all
 
         render json: @bookings
       end
 
-      # GET /bookings/1
+      # GET /events/:event_id/bookings/:id
       def show
         render json: @booking
       end
 
-      # POST /bookings
+      # POST /events/:event_id/bookings
       def create
-        @booking = Booking.new(booking_params)
+        booking = current_user.customer.bookings.build(booking_params.merge(event: @event))
+        service = BookingService.new(booking, @event)
 
-        if @booking.save
-          render json: @booking, status: :created, location: @booking
+        if service.process_and_save!
+          SendTicketConfirmationJob.perform_async(booking.id)
+
+          render json: booking, status: :created
         else
-          render json: @booking.errors, status: :unprocessable_entity
+          render json: { errors: booking.errors.full_messages }, status: :unprocessable_entity
         end
-      end
-
-      # PATCH/PUT /bookings/1
-      def update
-        if @booking.update(booking_params)
-          render json: @booking
-        else
-          render json: @booking.errors, status: :unprocessable_entity
-        end
-      end
-
-      # DELETE /bookings/1
-      def destroy
-        @booking.destroy!
       end
 
       private
-        # Use callbacks to share common setup or constraints between actions.
-        def set_booking
-          @booking = Booking.find(params[:id])
-        end
 
-        # Only allow a list of trusted parameters through.
-        def booking_params
-          params.require(:booking).permit(:customer_id, :event_id, :total_price, :status)
-        end
+      # Use callbacks to share common setup or constraints between actions.
+      def set_booking
+        @booking = Booking.find(params[:id])
+      end
+
+      def set_event
+        @event = Event.find(params[:event_id])
+      end
+
+      # Only allow a list of trusted parameters through.
+      def booking_params
+        params.require(:booking).permit(:event_id, :status, booking_tickets_attributes: %i[ticket_id quantity])
+      end
     end
-end
+  end
 end

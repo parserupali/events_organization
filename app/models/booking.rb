@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Booking < ApplicationRecord
   belongs_to :customer
   belongs_to :event
@@ -8,5 +10,7 @@ class Booking < ApplicationRecord
   validates :customer_id, presence: true
   validates :event_id, presence: true
   validates :total_price, presence: true, numericality: { greater_than: 0 }
-  validates :status, presence: true, inclusion: { in: ['pending', 'confirmed', 'canceled'] }
+  validates :status, presence: true, inclusion: { in: %w[pending confirmed canceled] }
+
+  accepts_nested_attributes_for :booking_tickets, allow_destroy: true
 end

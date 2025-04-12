@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module Api
   module V1
-    class EventOrganizersController <  ApplicationController
-      before_action :set_event_organizer, only: %i[ show update destroy ]
+    class EventOrganizersController < ApplicationController
+      before_action :set_event_organizer, only: %i[show update destroy]
       before_action :reject_role, only: [:update]
 
       # GET /event_organizers
@@ -26,19 +28,20 @@ module Api
         if updated_user && updated_eo
           render json: @event_organizer
         else
-          render json: {errors: "#{@event_organizer.errors + @event_organizer.user.errors}"}, status: :unprocessable_entity
+          render json: { errors: (@event_organizer.errors + @event_organizer.user.errors).to_s },
+                 status: :unprocessable_entity
         end
       end
-
 
       # DELETE /event_organizers/1
       def destroy
         authorize @event_organizer
-        # @event_organizer.destroy!
+        @event_organizer.destroy!
         render json: { message: 'Event organizer deleted successfully.' }, status: :ok
       end
 
       private
+
       def set_event_organizer
         @event_organizer = EventOrganizer.find(params[:id])
       end
@@ -55,7 +58,5 @@ module Api
         params[:user].delete(:role) if params[:user].present? && params[:user][:role].present?
       end
     end
-  end 
+  end
 end
-
-

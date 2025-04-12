@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # app/policies/event_policy.rb
 class EventPolicy < ApplicationPolicy
   def index?
@@ -12,11 +14,11 @@ class EventPolicy < ApplicationPolicy
     user.event_organizer?
   end
 
-  def update? # TODO: add if started dont edit OR if has booking dont edit
-    user.event_organizer? && record.event_organizer == user.event_organizer
+  def update?
+    user.admin? || user.event_organizer? && record.event_organizer == user.event_organizer
   end
 
-  def destroy? # TODO: - if has booking dont delete
-    user.admin? || user.event_organizer? && record.event_organizer == user.event_organizer
+  def destroy?
+    record.bookings.empty? && (user.admin? || user.event_organizer? && record.event_organizer == user.event_organizer)
   end
 end
